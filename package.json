@@ -1,7 +1,7 @@
 {
   "name": "studio-back-office",
   "version": "0.1.0",
-  "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "An SMS-first back-office agent for creative professionals.",
   "engines": { "node": ">=22.6" },

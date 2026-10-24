@@ -38,3 +38,7 @@ npm run typecheck
 ## Not in v1
 
 Studio can't send email, post, log into creators' accounts or take payments yet, and it says so when asked. The next layer is connectors: Gmail drafts, Google Calendar, Stripe and Square for income, and Shopify and Etsy for makers, gated by the autonomy ladder (drafts, then asks, then runs on its own). Page links are unguessable but not signed in, which suits sharing a rate card and doesn't suit anything private.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
