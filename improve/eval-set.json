@@ -1,0 +1,47 @@
+[
+  {
+    "name": "multi-discipline-musician",
+    "texts": [
+      "hi",
+      "I'm Spencer Handley",
+      "I'm a musician and a YouTuber and I have a podcast that I published on YouTube and I run a course Company for guitarist called Sonora",
+      "I make most of my money through teaching and booking gigs and doing session work",
+      "honestly keeping up with everything, booking and the course business",
+      "mornings, pacific"
+    ],
+    "expect": "Keeps all four disciplines (musicians, youtubers, podcasters, teachers), mentions Sonora, uses 'Spencer' not the full name, and never suggests galleries or other fields' terms."
+  },
+  {
+    "name": "answers-two-at-once",
+    "texts": [
+      "hey",
+      "Maya, I paint big oil landscapes and sell through two galleries",
+      "tracking which gallery has which painting is a nightmare",
+      "9 to 1 eastern"
+    ],
+    "expect": "Captures name, painter, and gallery income from one text, then skips the money question. Starts with the inventory or galleries step."
+  },
+  {
+    "name": "tattoo-artist-terse",
+    "texts": ["start", "dee", "tattoos", "appointments mostly", "no shows", "late, like 2 to 10, LA"],
+    "expect": "Filed as a tattoo artist with tattoo-specific examples. Hours 14:00-22:00 Los Angeles. First step deals with deposits or booking rules because the headache is no-shows."
+  },
+  {
+    "name": "asks-a-question-mid-onboarding",
+    "texts": ["hi", "Rob", "wait, what is this exactly? who are you", "ok. I'm a wedding photographer", "weddings and some portrait minis", "answering inquiries fast enough", "no fixed hours, central time"],
+    "expect": "Answers what Studio is in a sentence before asking again. Doesn't lose the thread. Photographer, Chicago time, no quiet hours."
+  },
+  {
+    "name": "post-onboarding-task",
+    "texts": [
+      "hi",
+      "Jess",
+      "indie folk band, we tour",
+      "shows, merch, streaming",
+      "figuring out if a tour made money",
+      "10-2 central",
+      "Nov 7 Basement East Nashville $800 guarantee, Nov 9 Grey Eagle Asheville $500 vs 80% of door. drummer $150/show, gas $120/day"
+    ],
+    "expect": "Builds a shows page with correct math (drummer $300 for two shows, gas at $120 per day with the number of days stated as an assumption, $1,300 guaranteed) and links it, then moves to the next setup step with one question."
+  }
+]

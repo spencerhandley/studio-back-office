@@ -109,11 +109,21 @@ CREATE TABLE IF NOT EXISTS llm_calls (
 );
 `);
 
+// Columns added after v1 shipped. SQLite has no ADD COLUMN IF NOT EXISTS, so check first.
+const userCols = (db.prepare("PRAGMA table_info(users)").all() as { name: string }[]).map((c) => c.name);
+if (!userCols.includes("creator_types")) db.exec("ALTER TABLE users ADD COLUMN creator_types TEXT");
+if (!userCols.includes("onboarding_turns")) db.exec("ALTER TABLE users ADD COLUMN onboarding_turns INTEGER NOT NULL DEFAULT 0");
+if (!userCols.includes("onboarding_repeat")) db.exec("ALTER TABLE users ADD COLUMN onboarding_repeat INTEGER NOT NULL DEFAULT 0");
+
 export type User = {
   id: number;
   phone: string;
   name: string | null;
+  // Primary creator type. creator_types holds every discipline as a JSON array, primary first.
   creator_type: string | null;
+  creator_types: string | null;
+  onboarding_turns: number;
+  onboarding_repeat: number;
   creator_raw: string | null;
   earning: string | null;
   headache: string | null;
