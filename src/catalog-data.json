@@ -1,0 +1,982 @@
+{
+ "areas": {
+  "ops": {
+   "label": "Studio ops",
+   "color": "#5A7DB0"
+  },
+  "money": {
+   "label": "Money",
+   "color": "#3E8E5E"
+  },
+  "growth": {
+   "label": "Sales & growth",
+   "color": "#C9852B"
+  },
+  "rights": {
+   "label": "Rights & admin",
+   "color": "#9B4B8C"
+  },
+  "craft": {
+   "label": "Creative process",
+   "color": "#C2553A"
+  },
+  "care": {
+   "label": "Headspace",
+   "color": "#6F7F86"
+  }
+ },
+ "types": [
+  {
+   "id": "painters",
+   "name": "Painters",
+   "pigment": "PB29 Ultramarine Blue",
+   "color": "#3B4BA8",
+   "who": "Studio painters selling through galleries, open studios, commissions and prints.",
+   "firstHire": "An inventory and consignment agent. Most painters can't say where every canvas is today or which gallery owes them money.",
+   "ideas": [
+    {
+     "title": "Inventory with provenance",
+     "area": "ops",
+     "level": "auto",
+     "text": "Logs each finished work from a phone photo: size, medium, date, location, price. Keeps exhibition and sale history attached for the certificate of authenticity."
+    },
+    {
+     "title": "Consignment tracker",
+     "area": "money",
+     "level": "auto",
+     "text": "Knows which galleries hold which canvases, the split on each, and when each consignment term ends. Chases payment for reported sales and requests unsold work back on schedule."
+    },
+    {
+     "title": "Open call scout",
+     "area": "growth",
+     "level": "draft",
+     "text": "Reads CaFÉ, Submittable and arts council listings each week, filters by medium, entry fee and eligibility, and drafts the application to the exact image and statement specs."
+    },
+    {
+     "title": "Collector memory",
+     "area": "growth",
+     "level": "ask",
+     "text": "Remembers who bought what, who lingered at a piece during an opening, and who collects a series. Drafts a personal note when new work in that series leaves the easel."
+    },
+    {
+     "title": "Commission intake",
+     "area": "money",
+     "level": "ask",
+     "text": "Handles portrait and mural inquiries: size, deadline, deposit, progress-photo approvals, and a contract that says who holds reproduction rights."
+    },
+    {
+     "title": "Print editions",
+     "area": "money",
+     "level": "auto",
+     "text": "Runs a giclée program with the print studio: edition size, numbering, proof approvals and fulfillment. Closes the listing the moment an edition sells out."
+    },
+    {
+     "title": "Statements in every length",
+     "area": "craft",
+     "level": "draft",
+     "text": "Keeps a 50, 150 and 500 word artist statement in your voice and adapts one to each show, grant or press request."
+    },
+    {
+     "title": "Shipping and crating",
+     "area": "ops",
+     "level": "ask",
+     "text": "Gets art-shipper quotes, picks a crate or soft pack by value, buys fine-art transit insurance and tracks delivery to the gallery."
+    },
+    {
+     "title": "Light-hours guard",
+     "area": "care",
+     "level": "auto",
+     "text": "Blocks your best natural-light hours for painting and pushes every call and errand into one admin afternoon."
+    }
+   ]
+  },
+  {
+   "id": "illustrators",
+   "name": "Illustrators & comic artists",
+   "pigment": "PR255 Pyrrole Red",
+   "color": "#C7372F",
+   "who": "Editorial, publishing and commercial illustrators, plus webcomic and graphic novel creators.",
+   "firstHire": "A contract and licensing reviewer. Illustrators lose more money to bad usage terms than to slow clients.",
+   "ideas": [
+    {
+     "title": "Contract redlines",
+     "area": "rights",
+     "level": "draft",
+     "text": "Reads every publisher and agency contract for work-for-hire language, all-rights grabs, AI training clauses and missing kill fees, then proposes edits based on your past deals."
+    },
+    {
+     "title": "Usage-based quotes",
+     "area": "money",
+     "level": "draft",
+     "text": "Prices a job by territory, term, media and print run using your own history and Graphic Artists Guild ranges, so a national campaign never gets an editorial spot fee."
+    },
+    {
+     "title": "Revision round counter",
+     "area": "ops",
+     "level": "ask",
+     "text": "Tracks rounds against the contract, flags the round that crosses the limit, and drafts a friendly change order before you start it."
+    },
+    {
+     "title": "Convention circuit",
+     "area": "growth",
+     "level": "ask",
+     "text": "Applies for artist alley tables, books travel, plans print and sticker stock from last year's sales at that show, and reconciles the card reader report afterward."
+    },
+    {
+     "title": "Page buffer watch",
+     "area": "craft",
+     "level": "auto",
+     "text": "Keeps count of finished webcomic pages, warns when the buffer drops under two weeks, and posts updates to Webtoon, Tapas and Patreon on schedule."
+    },
+    {
+     "title": "Art theft sweep",
+     "area": "rights",
+     "level": "auto",
+     "text": "Reverse-image searches print-on-demand shops and social accounts for your work and files takedown notices."
+    },
+    {
+     "title": "Crowdfunding back end",
+     "area": "money",
+     "level": "ask",
+     "text": "Runs a Kickstarter book campaign: reward tiers, backer updates, pledge manager surveys, printer quotes, freight, and the shipping spreadsheet."
+    },
+    {
+     "title": "Portfolio by market",
+     "area": "growth",
+     "level": "draft",
+     "text": "Each quarter picks your strongest new pieces and builds separate portfolios for children's publishing, editorial and licensing clients."
+    }
+   ]
+  },
+  {
+   "id": "sculptors",
+   "name": "Sculptors & ceramicists",
+   "pigment": "PBr7 Raw Umber",
+   "color": "#7A5C3A",
+   "who": "Fine art sculptors working with foundries and fabricators, and studio potters selling functional work.",
+   "firstHire": "A fabrication coordinator. A bronze moves through six vendors and a dozen approvals before it's finished.",
+   "ideas": [
+    {
+     "title": "Foundry tracker",
+     "area": "ops",
+     "level": "ask",
+     "text": "Follows a bronze through mold, wax, casting, chasing and patina, logs cost at each stage, and schedules your approval visits."
+    },
+    {
+     "title": "Kiln and glaze log",
+     "area": "craft",
+     "level": "auto",
+     "text": "Records firing schedules, cone, atmosphere and glaze recipes with photos of the results, so a glaze that worked last spring can be repeated."
+    },
+    {
+     "title": "Public art RFQs",
+     "area": "growth",
+     "level": "draft",
+     "text": "Watches percent-for-art programs and city calls, drafts the qualifications packet, and builds a budget with engineering, permits and installation lines."
+    },
+    {
+     "title": "Cast and edition records",
+     "area": "rights",
+     "level": "auto",
+     "text": "Keeps the edition count, cast number and foundry mark for every piece, which collectors and appraisers will ask for later."
+    },
+    {
+     "title": "Install logistics",
+     "area": "ops",
+     "level": "ask",
+     "text": "Coordinates riggers, art handlers, site permits and certificates of insurance for a large installation."
+    },
+    {
+     "title": "Shop drop after the kiln",
+     "area": "money",
+     "level": "auto",
+     "text": "Turns a kiln unload into a shop update: listing photos, descriptions and prices, an email to the list, and breakage-proof packing rules for shipping."
+    },
+    {
+     "title": "Materials reorder",
+     "area": "money",
+     "level": "auto",
+     "text": "Reorders clay, glaze chemicals, armature and welding supplies before you run out, comparing supplier prices and lead times."
+    },
+    {
+     "title": "Body and dust check",
+     "area": "care",
+     "level": "auto",
+     "text": "Tracks hours at the wheel or grinder, reminds you to rest your wrists, and tracks respirator cartridge replacement."
+    }
+   ]
+  },
+  {
+   "id": "photographers",
+   "name": "Photographers",
+   "pigment": "PBk9 Ivory Black",
+   "color": "#3A3A3C",
+   "who": "Wedding, portrait, commercial and fine art photographers.",
+   "firstHire": "A client pipeline agent. The inquiry that waits a day goes to the photographer who replied in ten minutes.",
+   "ideas": [
+    {
+     "title": "Inquiry to booking",
+     "area": "money",
+     "level": "ask",
+     "text": "Answers inquiries within minutes with availability and packages, then sends the contract and retainer invoice and holds the date."
+    },
+    {
+     "title": "Timeline and shot list",
+     "area": "ops",
+     "level": "draft",
+     "text": "Builds the shoot timeline around sunset time and travel between locations, with the family formals list and the second shooter's schedule."
+    },
+    {
+     "title": "First-pass cull",
+     "area": "craft",
+     "level": "draft",
+     "text": "Removes closed eyes, missed focus and near-duplicates from 3,000 frames so you start editing from the keepers, with hero candidates flagged."
+    },
+    {
+     "title": "Releases on file",
+     "area": "rights",
+     "level": "auto",
+     "text": "Collects model and property releases before the shoot and attaches them to the images, so commercial and stock licensing stays possible."
+    },
+    {
+     "title": "Unlicensed use recovery",
+     "area": "money",
+     "level": "auto",
+     "text": "Finds your images used without a license on the web, confirms the use is commercial, and sends a retroactive license invoice."
+    },
+    {
+     "title": "Stock submissions",
+     "area": "money",
+     "level": "auto",
+     "text": "Keywords and submits outtakes to stock agencies, tracks which subjects sell, and suggests what to shoot next."
+    },
+    {
+     "title": "Album and print sales",
+     "area": "growth",
+     "level": "ask",
+     "text": "Follows up after gallery delivery on album selections and print orders, which is where most wedding upsell revenue gets left behind."
+    },
+    {
+     "title": "Off-season plan",
+     "area": "care",
+     "level": "draft",
+     "text": "Each January plans mini-sessions, referral outreach and vendor networking so the slow months don't become anxious months."
+    }
+   ]
+  },
+  {
+   "id": "musicians",
+   "name": "Performing musicians & bands",
+   "pigment": "PY35 Cadmium Yellow",
+   "color": "#D9A514",
+   "who": "Touring and gigging artists, bands and solo performers.",
+   "firstHire": "A tour manager agent. One mistake on a settlement sheet can wipe out a week of profit.",
+   "ideas": [
+    {
+     "title": "Tour routing",
+     "area": "ops",
+     "level": "draft",
+     "text": "Routes a run of dates by drive time, radius clauses and past ticket sales per market, drafts pitches to talent buyers and tracks holds."
+    },
+    {
+     "title": "Advance and settlement",
+     "area": "money",
+     "level": "ask",
+     "text": "Advances each show (load-in, backline, hospitality, guest list), then checks the settlement against the deal so a guarantee-versus-door split is calculated right."
+    },
+    {
+     "title": "Merch counts",
+     "area": "money",
+     "level": "auto",
+     "text": "Counts merch in and out each night, reorders sizes that sell out before the next market, and reconciles cash and card by city."
+    },
+    {
+     "title": "Release campaign",
+     "area": "growth",
+     "level": "draft",
+     "text": "Plans a single's rollout: Spotify editorial pitch at least seven days before release, pre-saves, content calendar and curator outreach."
+    },
+    {
+     "title": "Royalty registrations",
+     "area": "rights",
+     "level": "auto",
+     "text": "Registers every song with your PRO, The MLC and SoundExchange and assigns ISRCs, so streams and radio plays don't go unclaimed."
+    },
+    {
+     "title": "Band and crew pay",
+     "area": "money",
+     "level": "auto",
+     "text": "Pays members and crew per show from the split sheet and tracks who fronted the van rental and the strings."
+    },
+    {
+     "title": "Fans near the next show",
+     "area": "growth",
+     "level": "auto",
+     "text": "Collects emails at shows and announces new dates to fans within driving distance of each city."
+    },
+    {
+     "title": "Recovery on the road",
+     "area": "care",
+     "level": "auto",
+     "text": "Plans sleep windows, vocal rest days and real meals into the drive schedule, and pushes back on a routing that leaves no rest."
+    },
+    {
+     "title": "Press kit upkeep",
+     "area": "growth",
+     "level": "auto",
+     "text": "Keeps the EPK current with fresh numbers, press quotes, photos and live video, ready when a buyer or festival asks."
+    }
+   ]
+  },
+  {
+   "id": "composers",
+   "name": "Composers & producers",
+   "pigment": "PG7 Phthalo Green",
+   "color": "#127060",
+   "who": "Songwriters, beatmakers, film and game composers, and catalog owners.",
+   "firstHire": "A sync pitcher with perfect metadata. Music supervisors search by tags, and a track with blank fields never comes up.",
+   "ideas": [
+    {
+     "title": "Sync pitching",
+     "area": "growth",
+     "level": "ask",
+     "text": "Reads music supervisor briefs, finds matching tracks in your catalog by mood, tempo and lyric theme, prepares instrumentals and stems, and sends the pitch."
+    },
+    {
+     "title": "Metadata cleanup",
+     "area": "rights",
+     "level": "auto",
+     "text": "Fills writers, publishers, splits, ISWC, ISRC, BPM, key and mood tags across the catalog and embeds your contact in every file."
+    },
+    {
+     "title": "Cue sheet follow-through",
+     "area": "money",
+     "level": "auto",
+     "text": "Confirms a cue sheet was filed for every placement and checks PRO statements for performances that never paid."
+    },
+    {
+     "title": "Split sheets signed",
+     "area": "rights",
+     "level": "ask",
+     "text": "Sends split sheets to every collaborator the day of the session, before memories of who wrote the hook start to differ."
+    },
+    {
+     "title": "Sample clearance",
+     "area": "rights",
+     "level": "ask",
+     "text": "Identifies the samples in a track, finds the master and publishing owners, and requests clearance quotes before release."
+    },
+    {
+     "title": "Score revisions",
+     "area": "ops",
+     "level": "ask",
+     "text": "Tracks picture locks and cue revisions on a film or game, manages versions, and delivers stems to the exact sample rate and naming spec."
+    },
+    {
+     "title": "Beat license terms",
+     "area": "money",
+     "level": "auto",
+     "text": "Tracks lease versus exclusive terms for every beat sold, and flags a lease that has passed its stream cap so you can upsell it."
+    },
+    {
+     "title": "Royalty audit",
+     "area": "money",
+     "level": "auto",
+     "text": "Reconciles distributor, PRO, MLC and SoundExchange statements each quarter and flags any song whose income dropped without a reason."
+    }
+   ]
+  },
+  {
+   "id": "youtubers",
+   "name": "YouTubers & online video creators",
+   "pigment": "PR83 Alizarin Crimson",
+   "color": "#A3263A",
+   "who": "Creators who earn from AdSense, sponsors, memberships, affiliates and their own products.",
+   "firstHire": "A brand deal desk. Sponsor email is the biggest pile of unread money in the business.",
+   "ideas": [
+    {
+     "title": "Brand deal desk",
+     "area": "money",
+     "level": "ask",
+     "text": "Triages sponsor email, quarantines fake-sponsor malware lures, quotes from real view data, negotiates within your floor and tracks deliverables through to payment."
+    },
+    {
+     "title": "Edit review",
+     "area": "craft",
+     "level": "draft",
+     "text": "Watches the editor's cut against the brief and sends timestamped notes on pacing, missing B-roll and a sponsor read shorter than the contract requires."
+    },
+    {
+     "title": "Packaging lab",
+     "area": "growth",
+     "level": "draft",
+     "text": "Writes title and thumbnail variants, scores them against your channel's history and runs the A/B test."
+    },
+    {
+     "title": "Comment triage",
+     "area": "growth",
+     "level": "auto",
+     "text": "Surfaces the comments that matter (a superfan, a brand, a customer problem, a threat) and drafts replies to them, signed as the team."
+    },
+    {
+     "title": "Impersonator sweep",
+     "area": "rights",
+     "level": "auto",
+     "text": "Reports scam accounts that copy your name and avatar in replies, and finds deepfake ads using your likeness."
+    },
+    {
+     "title": "One video, many formats",
+     "area": "growth",
+     "level": "draft",
+     "text": "Cuts a long video into shorts, a newsletter and posts for each platform, following each one's conventions."
+    },
+    {
+     "title": "Content ID pre-flight",
+     "area": "rights",
+     "level": "auto",
+     "text": "Checks music and clips before upload for anything likely to draw a claim, and drafts fair-use disputes when a claim is wrong."
+    },
+    {
+     "title": "Unified P&L",
+     "area": "money",
+     "level": "auto",
+     "text": "Combines AdSense, memberships, merch, affiliates and sponsor invoices into one ledger and sets aside estimated taxes."
+    },
+    {
+     "title": "Backlog buffer",
+     "area": "care",
+     "level": "auto",
+     "text": "Keeps a bank of filmed videos so a sick week or a bad month doesn't break the upload schedule."
+    }
+   ]
+  },
+  {
+   "id": "videographers",
+   "name": "Videographers",
+   "pigment": "PB15 Phthalo Blue",
+   "color": "#1D4E89",
+   "who": "Wedding, event and commercial video producers who shoot and edit for clients.",
+   "firstHire": "A production coordinator. Every job is a small production with its own crew, gear, footage and revision rounds.",
+   "ideas": [
+    {
+     "title": "Quote builder",
+     "area": "money",
+     "level": "draft",
+     "text": "Prices a job from crew days, gear, edit days and how the client will use it, so a regional TV spot costs more than a social cut."
+    },
+    {
+     "title": "Pre-production packet",
+     "area": "ops",
+     "level": "draft",
+     "text": "Builds the call sheet, shot list, location notes, weather forecast and permit checklist for each shoot."
+    },
+    {
+     "title": "Footage safety",
+     "area": "ops",
+     "level": "auto",
+     "text": "Verifies card offloads with checksums, confirms the backups exist in three places, and labels and makes proxies for the editor."
+    },
+    {
+     "title": "Review rounds",
+     "area": "ops",
+     "level": "ask",
+     "text": "Turns Frame.io comments into a task list for the editor, groups duplicates, and tracks rounds against the contract."
+    },
+    {
+     "title": "Music license check",
+     "area": "rights",
+     "level": "auto",
+     "text": "Confirms every track in the edit is licensed for the client's use, which matters when a wedding film ends up in a venue's ad."
+    },
+    {
+     "title": "Freelance crew",
+     "area": "money",
+     "level": "ask",
+     "text": "Books second shooters and editors, pays them on delivery, and collects W-9s for 1099s at year end."
+    },
+    {
+     "title": "Repeat business",
+     "area": "growth",
+     "level": "draft",
+     "text": "Turns finished jobs into case studies and reminds past clients about anniversaries, annual events and next year's campaign."
+    },
+    {
+     "title": "Gear upkeep",
+     "area": "ops",
+     "level": "auto",
+     "text": "Tracks serial numbers, insurance riders, rentals out and returns, and service dates for the camera bodies and drones."
+    }
+   ]
+  },
+  {
+   "id": "filmmakers",
+   "name": "Independent filmmakers",
+   "pigment": "PV23 Dioxazine Violet",
+   "color": "#4F2D7F",
+   "who": "Directors and producers making shorts, features and documentaries outside the studio system.",
+   "firstHire": "A line producer agent. Indie films die from schedule and budget chaos more often than from creative failure.",
+   "ideas": [
+    {
+     "title": "Script breakdown",
+     "area": "ops",
+     "level": "draft",
+     "text": "Breaks the script into cast, props, locations and effects, builds the stripboard and drafts a shooting schedule."
+    },
+    {
+     "title": "Daily cost report",
+     "area": "money",
+     "level": "auto",
+     "text": "Tracks spend against budget every shoot day and warns you while there is still time to cut a scene."
+    },
+    {
+     "title": "Call sheets",
+     "area": "ops",
+     "level": "auto",
+     "text": "Sends the next day's call sheet with weather, parking, nearest hospital and changes highlighted, and confirms everyone read it."
+    },
+    {
+     "title": "Festival strategy",
+     "area": "growth",
+     "level": "draft",
+     "text": "Picks festivals by premiere rules, fees and deadlines, tracks FilmFreeway submissions, and asks for fee waivers where you qualify."
+    },
+    {
+     "title": "Grants and incentives",
+     "area": "money",
+     "level": "draft",
+     "text": "Drafts applications to film funds and labs, and tracks the paperwork for state production incentives."
+    },
+    {
+     "title": "Clearances and chain of title",
+     "area": "rights",
+     "level": "ask",
+     "text": "Collects every release, location agreement and music license, which E&O insurance and distributors require before they'll touch the film."
+    },
+    {
+     "title": "Deliverables",
+     "area": "ops",
+     "level": "auto",
+     "text": "Tracks the distributor's deliverables list: DCP, M&E tracks, captions, QC report, key art and stills."
+    },
+    {
+     "title": "Audience before release",
+     "area": "growth",
+     "level": "ask",
+     "text": "Builds the mailing list and crowdfunding backers into an audience you can bring to screenings and a self-distribution release."
+    }
+   ]
+  },
+  {
+   "id": "writers",
+   "name": "Writers & authors",
+   "pigment": "PY42 Yellow Ochre",
+   "color": "#B07D25",
+   "who": "Novelists, nonfiction authors, self-publishers, essayists and freelance journalists.",
+   "firstHire": "A rights and royalties manager. Authors sign away rights they never use and rarely reclaim the ones they could.",
+   "ideas": [
+    {
+     "title": "Submission tracker",
+     "area": "growth",
+     "level": "auto",
+     "text": "Tracks queries to agents and pieces sent to magazines, each venue's response time and policy on simultaneous submissions."
+    },
+    {
+     "title": "Royalty reconciliation",
+     "area": "money",
+     "level": "auto",
+     "text": "Reads KDP, aggregator and publisher statements, checks reserves against returns, and flags anything that doesn't add up."
+    },
+    {
+     "title": "Rights inventory",
+     "area": "rights",
+     "level": "ask",
+     "text": "Lists foreign, audio, film and translation rights for every book, and tells you when an out-of-print clause lets you take rights back."
+    },
+    {
+     "title": "Series bible",
+     "area": "craft",
+     "level": "draft",
+     "text": "Keeps characters, timelines, places and invented terms consistent across books, and catches the eye color that changed in book three."
+    },
+    {
+     "title": "Research librarian",
+     "area": "craft",
+     "level": "draft",
+     "text": "Finds and cites sources for a nonfiction chapter and fact-checks the draft against them."
+    },
+    {
+     "title": "Launch operations",
+     "area": "growth",
+     "level": "ask",
+     "text": "Runs ARC readers, newsletter swaps, promo bookings and the review requests that make launch week."
+    },
+    {
+     "title": "Self-publishing production",
+     "area": "ops",
+     "level": "ask",
+     "text": "Coordinates the cover designer, formatting, ISBNs, categories and keywords, and checks every retailer listing is correct."
+    },
+    {
+     "title": "Word count habit",
+     "area": "care",
+     "level": "auto",
+     "text": "Logs daily words, protects your writing hours, and stays quiet on the days you need it to."
+    },
+    {
+     "title": "Pitch desk",
+     "area": "money",
+     "level": "draft",
+     "text": "For freelancers: tracks editors, their beats and rates, drafts pitches, and chases late payment on published pieces."
+    }
+   ]
+  },
+  {
+   "id": "podcasters",
+   "name": "Podcasters",
+   "pigment": "PO73 Pyrrole Orange",
+   "color": "#D8642A",
+   "who": "Interview and narrative shows, independent or network-backed.",
+   "firstHire": "A guest booker. Booking and briefing guests takes more hours than recording them.",
+   "ideas": [
+    {
+     "title": "Guest booking",
+     "area": "growth",
+     "level": "ask",
+     "text": "Researches guests who fit the show, drafts the outreach, schedules the recording and sends a tech checklist."
+    },
+    {
+     "title": "Guest brief",
+     "area": "craft",
+     "level": "draft",
+     "text": "Reads the guest's book, past interviews and posts, then suggests questions nobody else has asked them."
+    },
+    {
+     "title": "Ad inventory",
+     "area": "money",
+     "level": "ask",
+     "text": "Tracks host-read and dynamic ad slots, confirms each read aired as booked, sends proof of performance and invoices."
+    },
+    {
+     "title": "Show notes and chapters",
+     "area": "ops",
+     "level": "auto",
+     "text": "Writes show notes, chapter markers, links mentioned and a transcript for every episode."
+    },
+    {
+     "title": "Clip finder",
+     "area": "growth",
+     "level": "draft",
+     "text": "Finds the strongest moments in each episode and cuts vertical video clips with captions."
+    },
+    {
+     "title": "Guest releases",
+     "area": "rights",
+     "level": "auto",
+     "text": "Collects a signed release from every guest before the episode publishes."
+    },
+    {
+     "title": "Listener mail",
+     "area": "growth",
+     "level": "draft",
+     "text": "Sorts listener email and voicemail into questions for a mailbag episode, corrections and guest suggestions."
+    },
+    {
+     "title": "Download trends",
+     "area": "growth",
+     "level": "auto",
+     "text": "Watches downloads by episode and source and tells you which topics and guests grew the show."
+    }
+   ]
+  },
+  {
+   "id": "designers",
+   "name": "Designers",
+   "pigment": "PB27 Prussian Blue",
+   "color": "#26405F",
+   "who": "Freelance and studio graphic, brand, web and product designers.",
+   "firstHire": "A scope and invoicing agent. Unbilled scope creep is where design studio margins go.",
+   "ideas": [
+    {
+     "title": "Scope creep detector",
+     "area": "money",
+     "level": "ask",
+     "text": "Compares every new request to the statement of work and drafts a change order before the extra work starts."
+    },
+    {
+     "title": "Proposal builder",
+     "area": "money",
+     "level": "draft",
+     "text": "Turns a discovery call recording into a proposal with phases, deliverables, timeline and price based on similar past projects."
+    },
+    {
+     "title": "Feedback merge",
+     "area": "ops",
+     "level": "draft",
+     "text": "Combines feedback from five stakeholders into one list, flags where they contradict each other, and asks the client to decide."
+    },
+    {
+     "title": "Handoff package",
+     "area": "ops",
+     "level": "auto",
+     "text": "Packages final files, exports, brand guidelines and source files, and checks that fonts and stock images are licensed for the client."
+    },
+    {
+     "title": "Retainer health",
+     "area": "money",
+     "level": "auto",
+     "text": "Tracks hours used on each retainer and warns you and the client before the month runs over."
+    },
+    {
+     "title": "Case studies",
+     "area": "growth",
+     "level": "draft",
+     "text": "Writes a case study from each finished project with the brief, the work and results the client will let you share."
+    },
+    {
+     "title": "Reference library",
+     "area": "craft",
+     "level": "auto",
+     "text": "Saves and tags inspiration and past work so you can pull every editorial layout with a grid you liked in seconds."
+    },
+    {
+     "title": "Pipeline outreach",
+     "area": "growth",
+     "level": "ask",
+     "text": "Keeps in touch with past clients and warm leads so a quiet month doesn't become a quiet quarter."
+    }
+   ]
+  },
+  {
+   "id": "makers",
+   "name": "Makers & craftspeople",
+   "pigment": "PR101 Burnt Sienna",
+   "color": "#94492D",
+   "who": "Jewelers, woodworkers, textile artists, candlemakers and other makers selling online and at markets.",
+   "firstHire": "A shop operations agent. Makers often price below real cost because nobody did the math on their hours.",
+   "ideas": [
+    {
+     "title": "True cost pricing",
+     "area": "money",
+     "level": "auto",
+     "text": "Works out the cost of each piece including materials, hours and fees, then suggests wholesale and retail prices that leave a margin."
+    },
+    {
+     "title": "Listing writer",
+     "area": "growth",
+     "level": "draft",
+     "text": "Writes marketplace titles, tags and descriptions that match how buyers search, from photos of the piece."
+    },
+    {
+     "title": "Order fulfillment",
+     "area": "ops",
+     "level": "auto",
+     "text": "Prints labels, buys postage, sends tracking, and drafts responses to where-is-my-order messages."
+    },
+    {
+     "title": "Wholesale accounts",
+     "area": "growth",
+     "level": "ask",
+     "text": "Builds line sheets, pitches stores that fit, manages reorders and wholesale minimums."
+    },
+    {
+     "title": "Market and fair applications",
+     "area": "growth",
+     "level": "draft",
+     "text": "Finds craft fairs that fit your price point, drafts applications with booth photos, and plans stock from past fair sales."
+    },
+    {
+     "title": "Sales tax",
+     "area": "money",
+     "level": "auto",
+     "text": "Tracks where you collect sales tax yourself versus where the marketplace does, and files on time."
+    },
+    {
+     "title": "Custom orders",
+     "area": "money",
+     "level": "ask",
+     "text": "Handles custom requests: options, deposit, approval of a sketch, and a realistic ship date."
+    },
+    {
+     "title": "Batch planning",
+     "area": "craft",
+     "level": "auto",
+     "text": "Groups orders into production batches by technique and material so you make twenty rings in one session."
+    }
+   ]
+  },
+  {
+   "id": "tattoo",
+   "name": "Tattoo artists",
+   "pigment": "PG18 Viridian",
+   "color": "#2F7E6E",
+   "who": "Shop artists and private studio owners booking custom work and flash.",
+   "firstHire": "A booking and deposit agent. DMs are the front desk, and they never close.",
+   "ideas": [
+    {
+     "title": "Inquiry sorting",
+     "area": "ops",
+     "level": "ask",
+     "text": "Reads requests with placement, size and reference images, routes the ones that fit your style, and declines the rest kindly."
+    },
+    {
+     "title": "Deposits and no-shows",
+     "area": "money",
+     "level": "auto",
+     "text": "Collects deposits on booking, applies the no-show policy, and fills a canceled slot from the waitlist."
+    },
+    {
+     "title": "Design brief",
+     "area": "craft",
+     "level": "draft",
+     "text": "Turns a client's messy description and ten reference images into a brief you can draw from."
+    },
+    {
+     "title": "Consent and aftercare",
+     "area": "rights",
+     "level": "auto",
+     "text": "Collects consent forms and ID before the session, sends aftercare by text, and asks for a healed photo at six weeks."
+    },
+    {
+     "title": "Books open and flash",
+     "area": "growth",
+     "level": "ask",
+     "text": "Plans when to open books and flash days, writes the posts and handles the rush of messages that follow."
+    },
+    {
+     "title": "Guest spots",
+     "area": "ops",
+     "level": "ask",
+     "text": "Arranges guest spots in other cities: the shop agreement, local license, travel and an announcement to clients there."
+    },
+    {
+     "title": "Healed portfolio",
+     "area": "growth",
+     "level": "auto",
+     "text": "Builds your portfolio from healed photos, which convince clients more than fresh ones."
+    },
+    {
+     "title": "Hand and back care",
+     "area": "care",
+     "level": "auto",
+     "text": "Tracks hours tattooing per week and keeps rest days on the calendar when the books are full."
+    }
+   ]
+  },
+  {
+   "id": "performers",
+   "name": "Actors, dancers & performers",
+   "pigment": "PR122 Quinacridone Magenta",
+   "color": "#B0306A",
+   "who": "Stage and screen actors, voice actors, dancers and choreographers.",
+   "firstHire": "An audition manager. Finding and submitting for the right roles is a part-time job on top of the actual job.",
+   "ideas": [
+    {
+     "title": "Breakdown scanner",
+     "area": "growth",
+     "level": "auto",
+     "text": "Reads casting breakdowns on Backstage and Actors Access, filters by type, location and union status, and submits for the right ones."
+    },
+    {
+     "title": "Self-tape logistics",
+     "area": "ops",
+     "level": "ask",
+     "text": "Gets the sides, books a reader, sets up the deadline and checks the tape meets the casting office's specs."
+    },
+    {
+     "title": "Union earnings",
+     "area": "money",
+     "level": "auto",
+     "text": "Tracks residuals and earnings toward health plan eligibility thresholds, and flags missing residual payments."
+    },
+    {
+     "title": "Rep communication",
+     "area": "ops",
+     "level": "draft",
+     "text": "Keeps your agent and manager updated on availability, bookings and conflicts in one weekly note."
+    },
+    {
+     "title": "Materials refresh",
+     "area": "growth",
+     "level": "ask",
+     "text": "Tells you when headshots, reel and resume are out of date and books the photographer or editor."
+    },
+    {
+     "title": "Survival job schedule",
+     "area": "care",
+     "level": "auto",
+     "text": "Fits day-job shifts around auditions and callbacks and swaps shifts when a booking lands."
+    },
+    {
+     "title": "Choreography rights",
+     "area": "rights",
+     "level": "draft",
+     "text": "For choreographers: licensing terms and credit for work used in videos, tours and competitions."
+    },
+    {
+     "title": "Training plan",
+     "area": "craft",
+     "level": "auto",
+     "text": "Schedules classes, coaching and conditioning around rehearsal and show schedules."
+    }
+   ]
+  },
+  {
+   "id": "teachers",
+   "name": "Music & arts educators",
+   "pigment": "PG17 Chromium Oxide Green",
+   "color": "#5F7434",
+   "who": "Private teachers, online course creators and mentorship programs teaching an instrument or an art.",
+   "firstHire": "A student success agent. Retention decides the business, and students drift away quietly.",
+   "ideas": [
+    {
+     "title": "Lesson scheduling",
+     "area": "ops",
+     "level": "auto",
+     "text": "Books lessons, handles reschedules and makeups by policy, and keeps every calendar right across time zones."
+    },
+    {
+     "title": "Practice follow-up",
+     "area": "craft",
+     "level": "ask",
+     "text": "Notices a student who stopped practicing and sends the teacher a heads-up with a suggested message."
+    },
+    {
+     "title": "Progress reports",
+     "area": "craft",
+     "level": "draft",
+     "text": "Writes each student's progress summary from lesson notes, recordings and practice logs."
+    },
+    {
+     "title": "Enrollment pipeline",
+     "area": "growth",
+     "level": "ask",
+     "text": "Answers prospects, books trial lessons, follows up after trials and tracks who enrolled."
+    },
+    {
+     "title": "Failed payments",
+     "area": "money",
+     "level": "auto",
+     "text": "Retries failed charges, sends a polite card-update request, and tells you before access is cut off."
+    },
+    {
+     "title": "Student support inbox",
+     "area": "ops",
+     "level": "auto",
+     "text": "Answers questions about schedules, materials and billing, and passes anything about learning to the teacher."
+    },
+    {
+     "title": "Recital logistics",
+     "area": "ops",
+     "level": "ask",
+     "text": "Plans recitals and showcases: venue, program order, accompanist, rehearsal schedule and family invitations."
+    },
+    {
+     "title": "Curriculum library",
+     "area": "craft",
+     "level": "auto",
+     "text": "Organizes lesson materials and exercises by level so the right next exercise is always at hand."
+    }
+   ]
+  }
+ ]
+}
