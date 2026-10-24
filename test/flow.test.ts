@@ -1,0 +1,140 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { setMockResponder, type LlmRequest } from "../src/llm.ts";
+import { handleInbound } from "../src/conversation.ts";
+import { artifacts, memories, messages, reminders, steps, users } from "../src/db.ts";
+import { tick } from "../src/scheduler.ts";
+import { parseContent } from "../src/artifacts.ts";
+
+const PHONE = "+14155550123";
+const lastOut = () => {
+  const u = users.byPhone(PHONE)!;
+  return messages.recent(u.id, 30).filter((m) => m.direction === "out").at(-1)?.body ?? "";
+};
+
+const calls: LlmRequest[] = [];
+setMockResponder((req) => {
+  calls.push(req);
+  if (req.purpose === "onboarding_complete") {
+    return { reply: "Thanks, Maya. Your plan is ready: {{link:plan}}\n\nFirst up: text me your available works.", actions: [] };
+  }
+  const latest = req.prompt.match(/The creator just texted:\n"""([\s\S]*?)"""/)?.[1] ?? "";
+  if (latest.includes("Sunset Study")) {
+    return {
+      reply: "Your inventory is started with 2 works. {{link:inventory}}\n\nNext: which galleries hold your work?",
+      actions: [
+        {
+          type: "upsert_artifact",
+          key: "inventory",
+          title: "Available works",
+          summary: "2 works",
+          sections: [{ heading: "Available now", table: { columns: ["Title", "Size", "Price", "Where"], rows: [["Sunset Study", "24x36", "$2,400", "Studio"], ["Blue Hour", "18x24", "$1,600", "Hall Gallery"]] } }],
+        },
+        { type: "remember", note: "Hall Gallery holds Blue Hour on consignment." },
+        { type: "complete_step", step_key: "inventory" },
+        { type: "set_reminder", when: "2026-10-26T15:00", text: "Email Hall Gallery about Blue Hour." },
+        { type: "upsert_artifact", key: "plan", title: "Hijack", sections: [{ heading: "x" }] },
+      ],
+    };
+  }
+  return { reply: "Got it — noted. **Anything else?**", actions: [] };
+});
+
+test("a new creator onboards by text and gets a plan, steps and a first ask", async () => {
+  await handleInbound(PHONE, "hi");
+  let user = users.byPhone(PHONE)!;
+  assert.equal(user.consent_source, "inbound_sms");
+  assert.match(lastOut(), /what should I call you/i);
+
+  await handleInbound(PHONE, "I'm Maya");
+  assert.match(lastOut(), /Nice to meet you, Maya/);
+
+  await handleInbound(PHONE, "Oil paintings, mostly big landscapes");
+  assert.match(lastOut(), /a painter/);
+
+  await handleInbound(PHONE, "Two galleries and some commissions");
+  await handleInbound(PHONE, "Keeping track of which gallery has which painting");
+  assert.match(lastOut(), /best work/);
+
+  await handleInbound(PHONE, "9am to 1pm, eastern");
+  user = users.byPhone(PHONE)!;
+  assert.equal(user.onboarding_step, "done");
+  assert.ok(user.onboarded_at);
+  assert.equal(user.creator_type, "painters");
+  assert.equal(user.tz, "America/New_York");
+  assert.equal(user.work_start, "09:00");
+  assert.equal(user.work_end, "13:00");
+
+  const s = steps.list(user.id);
+  assert.deepEqual(s.map((x) => x.key), ["inventory", "galleries", "deadlines"]);
+  assert.equal(steps.active(user.id)?.key, "inventory");
+
+  const plan = artifacts.byKey(user.id, "plan")!;
+  assert.ok(plan);
+  const content = parseContent(plan);
+  assert.ok(content.sections.some((sec) => sec.heading === "Your setup path"));
+  assert.ok(content.sections.some((sec) => sec.table && sec.table.rows.length >= 8));
+  assert.match(lastOut(), new RegExp(`/a/${plan.public_id}`));
+  assert.equal(calls.filter((c) => c.purpose === "onboarding_complete").length, 1);
+});
+
+test("agent actions build pages, remember facts, advance setup and set reminders", async () => {
+  await handleInbound(PHONE, "Sunset Study 24x36 oil $2400 at the studio\nBlue Hour 18x24 $1600 at Hall Gallery");
+  const user = users.byPhone(PHONE)!;
+  const inv = artifacts.byKey(user.id, "inventory")!;
+  assert.equal(inv.title, "Available works");
+  assert.equal(parseContent(inv).sections[0].table?.rows.length, 2);
+  assert.match(lastOut(), new RegExp(`/a/${inv.public_id}`));
+  assert.equal(memories.list(user.id).length, 1);
+  assert.equal(steps.byKey(user.id, "inventory")?.status, "done");
+  assert.equal(steps.active(user.id)?.key, "galleries");
+  // The model cannot overwrite the server-owned plan page.
+  assert.notEqual(artifacts.byKey(user.id, "plan")?.title, "Hijack");
+  const r = reminders.pending(user.id);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].due_at, "2026-10-26T19:00:00.000Z");
+});
+
+test("replies are cleaned of markdown and em dashes", async () => {
+  await handleInbound(PHONE, "thanks");
+  assert.equal(lastOut(), "Got it, noted. Anything else?");
+});
+
+test("keywords: HELP, LINK, PAUSE, STOP and START", async () => {
+  await handleInbound(PHONE, "help");
+  assert.match(lastOut(), /back-office agent/);
+  await handleInbound(PHONE, "LINK");
+  assert.match(lastOut(), /\/login\?t=/);
+  await handleInbound(PHONE, "pause");
+  assert.equal(users.byPhone(PHONE)!.paused, 1);
+  await handleInbound(PHONE, "resume");
+  assert.equal(users.byPhone(PHONE)!.paused, 0);
+  const before = calls.length;
+  await handleInbound(PHONE, "STOP");
+  assert.equal(users.byPhone(PHONE)!.opted_out, 1);
+  await handleInbound(PHONE, "are you there?");
+  assert.equal(calls.length, before, "no model call after STOP");
+  await handleInbound(PHONE, "START");
+  assert.equal(users.byPhone(PHONE)!.opted_out, 0);
+});
+
+test("the scheduler sends due reminders and respects quiet hours for nudges", async () => {
+  const user = users.byPhone(PHONE)!;
+  const sent = await tick(new Date("2026-10-26T19:01:00Z"));
+  assert.equal(sent.reminders, 1);
+  assert.match(lastOut(), /^Reminder: Email Hall Gallery/);
+
+  // Make the creator look idle for two days.
+  const old = "2026-10-20T12:00:00.000Z";
+  users.update(user.id, { last_inbound_at: old, last_nudge_at: null, nudges_since_reply: 0 });
+  const { db } = await import("../src/db.ts");
+  db.prepare("UPDATE messages SET created_at = ? WHERE user_id = ?").run(old, user.id);
+
+  // 10:30am Eastern is inside Maya's 9 to 1 making time: no nudge.
+  assert.equal((await tick(new Date("2026-10-27T14:30:00Z"))).nudges, 0);
+  // 3pm Eastern: nudge with the active step's question.
+  assert.equal((await tick(new Date("2026-10-27T19:00:00Z"))).nudges, 1);
+  assert.match(lastOut(), /galleries/i);
+  // Not again within 48 hours.
+  assert.equal((await tick(new Date("2026-10-28T19:00:00Z"))).nudges, 0);
+});
