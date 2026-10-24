@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import { artifacts, memories, messages, reminders, steps, type Artifact, type User } from "../db.ts";
-import { TYPES, getType } from "../catalog.ts";
+import { TYPES, describeTypes, getType, userTypeIds } from "../catalog.ts";
 import { artifactUrl, parseContent } from "../artifacts.ts";
 import { DEFAULT_TZ, formatClock, formatFriendly } from "../time.ts";
 import { esc, linkify, page } from "./layout.ts";
@@ -103,7 +103,8 @@ const COMMON_TZS = [
 ];
 
 export function dashboardPage(user: User, flash?: string): string {
-  const type = getType(user.creator_type);
+  const ids = userTypeIds(user);
+  const type = getType(ids[0]);
   const tz = user.tz ?? DEFAULT_TZ;
   const stepList = steps.list(user.id);
   const active = stepList.find((s) => s.status === "active");
@@ -131,7 +132,7 @@ export function dashboardPage(user: User, flash?: string): string {
     : `<div class="panel note">Setup isn't finished yet. Reply to Studio's last text to keep going.</div>`;
 
   return page({
-    title: `${user.name ? `${user.name}'s` : "Your"} studio`,
+    title: `${user.name ? `${user.name.split(/\s+/)[0]}'s` : "Your"} studio`,
     accent: type.color,
     css: `
       .head { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-items: center; padding-block: 18px 22px; }
@@ -173,8 +174,8 @@ export function dashboardPage(user: User, flash?: string): string {
       ${flash ? `<div class="flash" role="status">${esc(flash)}</div>` : ""}
       <div class="head">
         <div class="smear" aria-hidden="true"></div>
-        <h1>${esc(user.name ?? "Your")}${user.name ? "'s" : ""} studio</h1>
-        <div class="eyebrow">${esc(type.label)} · ${esc(type.pigment)}</div>
+        <h1>${esc(user.name ? `${user.name.split(/\s+/)[0]}'s` : "Your")} studio</h1>
+        <div class="eyebrow">${esc(describeTypes(ids))} · ${esc(type.pigment)}</div>
       </div>
       ${onboardingNote}
       <div class="cols">
@@ -235,7 +236,7 @@ export function dashboardPage(user: User, flash?: string): string {
             <h2>Settings</h2>
             <form class="settings" method="post" action="/app/settings">
               <label for="name">Name<input id="name" name="name" value="${esc(user.name ?? "")}" maxlength="40"></label>
-              <label for="creator_type">What you make<select id="creator_type" name="creator_type">${typeOptions}</select></label>
+              <label for="creator_type">Main discipline<select id="creator_type" name="creator_type">${typeOptions}</select></label>
               <div class="two">
                 <label for="work_start">Making time starts<input id="work_start" name="work_start" type="time" value="${esc(user.work_start ?? "")}"></label>
                 <label for="work_end">Making time ends<input id="work_end" name="work_end" type="time" value="${esc(user.work_end ?? "")}"></label>
@@ -266,7 +267,7 @@ export function dashboardPage(user: User, flash?: string): string {
 // ---------- Artifact page ----------
 
 export function artifactPage(a: Artifact, user: User): string {
-  const type = getType(user.creator_type);
+  const type = getType(userTypeIds(user)[0]);
   const content = parseContent(a);
   const sections = content.sections
     .map((s) => {

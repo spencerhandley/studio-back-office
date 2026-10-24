@@ -13,8 +13,14 @@ const lastOut = () => {
 };
 
 const calls: LlmRequest[] = [];
+// Set per test: how the mock answers onboarding turns. Null makes the model fail so the scripted path runs.
+let onboardingMock: ((req: LlmRequest) => unknown) | null = null;
 setMockResponder((req) => {
   calls.push(req);
+  if (req.purpose === "onboarding") {
+    if (!onboardingMock) throw new Error("model down");
+    return onboardingMock(req);
+  }
   if (req.purpose === "onboarding_complete") {
     return { reply: "Thanks, Maya. Your plan is ready: {{link:plan}}\n\nFirst up: text me your available works.", actions: [] };
   }
@@ -40,7 +46,7 @@ setMockResponder((req) => {
   return { reply: "Got it — noted. **Anything else?**", actions: [] };
 });
 
-test("a new creator onboards by text and gets a plan, steps and a first ask", async () => {
+test("a new creator onboards by text (scripted fallback) and gets a plan, steps and a first ask", async () => {
   await handleInbound(PHONE, "hi");
   let user = users.byPhone(PHONE)!;
   assert.equal(user.consent_source, "inbound_sms");
@@ -50,7 +56,7 @@ test("a new creator onboards by text and gets a plan, steps and a first ask", as
   assert.match(lastOut(), /Nice to meet you, Maya/);
 
   await handleInbound(PHONE, "Oil paintings, mostly big landscapes");
-  assert.match(lastOut(), /a painter/);
+  assert.match(lastOut(), /Got it: painter\. .*galleries/);
 
   await handleInbound(PHONE, "Two galleries and some commissions");
   await handleInbound(PHONE, "Keeping track of which gallery has which painting");
@@ -137,4 +143,80 @@ test("the scheduler sends due reminders and respects quiet hours for nudges", as
   assert.match(lastOut(), /galleries/i);
   // Not again within 48 hours.
   assert.equal((await tick(new Date("2026-10-28T19:00:00Z"))).nudges, 0);
+});
+
+test("model-led onboarding keeps every discipline and skips what was already answered", async () => {
+  const phone = "+14155550999";
+  const out = () => messages.recent(users.byPhone(phone)!.id, 30).filter((m) => m.direction === "out").at(-1)?.body ?? "";
+  const turns: Record<string, unknown>[] = [
+    { name: "Spencer Handley", done: false, reply: "Good to meet you, Spencer. What do you make? If it's several things, list them all." },
+    {
+      creator_types: ["musicians", "youtubers", "podcasters", "teachers"],
+      what_they_make: "Musician, YouTuber, podcaster, runs Sonora, a guitar course company",
+      done: false,
+      reply: "A lot going on, and Sonora sounds like the engine. How does it all make money today: lessons, gigs, session work, sponsors?",
+    },
+    { earning: "Teaching, gigs, session work", headache: "Keeping up with booking", done: false, reply: "Got it. When do you do your best work, and what time zone?" },
+    { work_start: "08:00", work_end: "12:00", tz: "America/Los_Angeles", done: true, reply: "" },
+  ];
+  let i = 0;
+  onboardingMock = () => turns[i++];
+  await handleInbound(phone, "hi");
+  await handleInbound(phone, "I'm Spencer Handley");
+  assert.match(out(), /Spencer\./);
+  assert.doesNotMatch(out(), /Spencer Handley/);
+  await handleInbound(phone, "musician, YouTuber, podcast, and a course company called Sonora");
+  assert.match(out(), /Sonora/);
+  await handleInbound(phone, "teaching, gigs and session work. booking stresses me out");
+  await handleInbound(phone, "mornings, pacific");
+  const u = users.byPhone(phone)!;
+  assert.deepEqual(JSON.parse(u.creator_types!), ["musicians", "youtubers", "podcasters", "teachers"]);
+  assert.equal(u.creator_type, "musicians");
+  assert.equal(u.onboarding_step, "done");
+  assert.equal(u.tz, "America/Los_Angeles");
+  const keys = steps.list(u.id).map((s) => s.key);
+  assert.ok(keys.includes("deals") && keys.includes("students"), `steps were ${keys.join(",")}`);
+  const plan = parseContent(artifacts.byKey(u.id, "plan")!);
+  const ideas = plan.sections.find((s) => s.table)!;
+  assert.equal(ideas.table!.columns[1], "For your work as");
+  assert.ok(!JSON.stringify(plan).includes("galler"), "a musician's plan never mentions galleries");
+  onboardingMock = null;
+});
+
+test("onboarding never asks the same question a third time", async () => {
+  const phone = "+14155550888";
+  onboardingMock = (req) =>
+    req.prompt.includes('"name": null')
+      ? { name: "Maya", creator_types: ["painters"], done: false, reply: "How does your painting make money today?" }
+      : { done: false, reply: "Got it. How does your painting make money today?" };
+  await handleInbound(phone, "hey");
+  await handleInbound(phone, "Maya, I paint");
+  await handleInbound(phone, "tracking paintings is a nightmare");
+  await handleInbound(phone, "9 to 1 eastern");
+  const u = users.byPhone(phone)!;
+  assert.equal(u.earning, "(not given during setup)");
+  assert.notEqual(u.onboarding_step, "earn");
+  onboardingMock = null;
+});
+
+test("a clarifying question at the end of onboarding waits for the answer before the plan", async () => {
+  const phone = "+14155550777";
+  const outs = () => messages.recent(users.byPhone(phone)!.id, 30).filter((m) => m.direction === "out").map((m) => m.body);
+  const turns: Record<string, unknown>[] = [
+    { name: "Jess", creator_types: ["musicians"], earning: "shows", headache: "tour money", done: false, reply: "When do you do your best work, and what time zone?" },
+    { tz: "America/Chicago", work_start: "10:00", work_end: "14:00", done: false, reply: "Is that 10am to 2pm, or 10pm to 2am?" },
+    { work_start: "22:00", work_end: "02:00", done: true, reply: "" },
+  ];
+  let i = 0;
+  onboardingMock = () => turns[i++];
+  await handleInbound(phone, "hi");
+  await handleInbound(phone, "Jess, band, shows, tour money stress");
+  await handleInbound(phone, "10-2 central");
+  assert.match(outs().at(-1)!, /10am to 2pm, or 10pm/);
+  assert.equal(users.byPhone(phone)!.onboarded_at, null);
+  await handleInbound(phone, "pm, we're night owls");
+  const u = users.byPhone(phone)!;
+  assert.ok(u.onboarded_at);
+  assert.equal(u.work_start, "22:00");
+  onboardingMock = null;
 });

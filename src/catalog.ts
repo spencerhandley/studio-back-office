@@ -206,7 +206,26 @@ export function getType(id: string | null | undefined): CreatorType {
 
 export const ALL_TYPE_IDS = [...TYPES.map((t) => t.id), "other"];
 
-// Keyword scoring: longer, more specific keywords count more. Returns null when nothing matches.
+// Every creator type the text mentions, in the order the creator mentioned them.
+export function classifyCreatorAll(text: string): string[] {
+  const t = ` ${text.toLowerCase()} `;
+  const hits: { id: string; at: number; score: number }[] = [];
+  for (const type of TYPES) {
+    let score = 0;
+    let at = Infinity;
+    for (const k of type.keywords) {
+      const m = new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i").exec(t);
+      if (m) {
+        score += k.length;
+        at = Math.min(at, m.index);
+      }
+    }
+    if (score > 0) hits.push({ id: type.id, at, score });
+  }
+  return hits.sort((a, b) => a.at - b.at || b.score - a.score).map((h) => h.id);
+}
+
+// The single best match: longer, more specific keywords count more. Null when nothing matches.
 export function classifyCreator(text: string): string | null {
   const t = ` ${text.toLowerCase()} `;
   let best: { id: string; score: number } | null = null;
@@ -219,4 +238,83 @@ export function classifyCreator(text: string): string | null {
     if (score > 0 && (!best || score > best.score)) best = { id: type.id, score };
   }
   return best?.id ?? null;
+}
+
+// ---------- Creators with more than one discipline ----------
+
+export function userTypeIds(user: { creator_type: string | null; creator_types?: string | null }): string[] {
+  try {
+    const ids = JSON.parse(user.creator_types ?? "[]");
+    if (Array.isArray(ids)) {
+      const valid = ids.filter((id): id is string => typeof id === "string" && ALL_TYPE_IDS.includes(id));
+      if (valid.length) return [...new Set(valid)];
+    }
+  } catch {
+    // Fall through to the single type.
+  }
+  return user.creator_type ? [user.creator_type] : [];
+}
+
+const LABEL_OVERRIDES: Record<string, string> = { youtubers: "YouTuber" };
+
+export function describeTypes(ids: string[]): string {
+  const labels = (ids.length ? ids : ["other"]).map((id) => LABEL_OVERRIDES[id] ?? getType(id).label);
+  if (labels.length === 1) return labels[0];
+  return `${labels.slice(0, -1).join(", ")} and ${labels.at(-1)}`;
+}
+
+// One discipline gets its three starter steps. Several get the primary's first two, then the
+// first step of each other discipline, so every discipline is represented. Five at most.
+export function mergedStarters(ids: string[]): StarterStep[] {
+  const types = (ids.length ? ids : ["other"]).map(getType);
+  const out: StarterStep[] = [];
+  const add = (s: StarterStep) => {
+    if (!out.some((x) => x.key === s.key)) out.push(s);
+  };
+  types[0].starters.slice(0, types.length > 1 ? 2 : 3).forEach(add);
+  for (const t of types.slice(1)) {
+    const first = t.starters.find((s) => !out.some((x) => x.key === s.key));
+    if (first) add(first);
+  }
+  return out.slice(0, 5);
+}
+
+export function mergedIdeas(ids: string[]): (Idea & { typeLabel: string })[] {
+  const seen = new Set<string>();
+  const out: (Idea & { typeLabel: string })[] = [];
+  for (const id of ids.length ? ids : ["other"]) {
+    const t = getType(id);
+    for (const idea of t.ideas) {
+      if (seen.has(idea.title)) continue;
+      seen.add(idea.title);
+      out.push({ ...idea, typeLabel: LABEL_OVERRIDES[id] ?? t.label });
+    }
+  }
+  return out;
+}
+
+// Examples for "how does your work make money", in each discipline's own terms.
+export const EARN_EXAMPLES: Record<string, string[]> = {
+  painters: ["galleries", "commissions", "prints", "open studios"],
+  illustrators: ["client jobs", "licensing", "prints", "Patreon"],
+  sculptors: ["galleries", "commissions", "public art", "shop sales"],
+  photographers: ["weddings", "portrait sessions", "commercial clients", "prints"],
+  musicians: ["shows", "streaming", "merch", "session work", "teaching"],
+  composers: ["sync placements", "royalties", "beat sales", "scoring work"],
+  youtubers: ["AdSense", "sponsors", "memberships", "courses"],
+  videographers: ["client shoots", "day rates", "packages"],
+  filmmakers: ["grants", "commissions", "distribution", "client work"],
+  writers: ["advances", "royalties", "freelance pieces", "a newsletter"],
+  podcasters: ["sponsors", "listener support", "ads"],
+  designers: ["client projects", "retainers", "templates"],
+  makers: ["Etsy", "your own shop", "markets", "wholesale"],
+  tattoo: ["appointments", "flash days", "guest spots"],
+  performers: ["bookings", "residuals", "teaching"],
+  teachers: ["lessons", "courses", "memberships", "workshops"],
+  other: ["clients", "sales", "teaching"],
+};
+
+export function earnExamples(ids: string[]): string {
+  const all = [...new Set((ids.length ? ids : ["other"]).flatMap((id) => EARN_EXAMPLES[id] ?? EARN_EXAMPLES.other))].slice(0, 6);
+  return all.join(", ");
 }

@@ -1,7 +1,7 @@
 import { config } from "./config.ts";
 import { artifacts, memories, messages, reminders, steps, users, type User } from "./db.ts";
 import { callStructured, type LlmImage } from "./llm.ts";
-import { ALL_TYPE_IDS, getType } from "./catalog.ts";
+import { ALL_TYPE_IDS, describeTypes, getType, mergedIdeas, userTypeIds } from "./catalog.ts";
 import { SECTION_SCHEMA, artifactUrl, parseContent, rebuildPlan, sanitizeContent } from "./artifacts.ts";
 import { DEFAULT_TZ, formatFriendly, formatLocalIso, isValidTz, localParts, zonedToUtc } from "./time.ts";
 import { sendSms, fetchMedia } from "./sms.ts";
@@ -19,7 +19,7 @@ const ACTION_TYPES = [
   "send_dashboard_link",
 ] as const;
 
-const PROFILE_FIELDS = ["name", "creator_type", "creator_raw", "earning", "headache", "tz", "work_start", "work_end"] as const;
+const PROFILE_FIELDS = ["name", "creator_types", "creator_raw", "earning", "headache", "tz", "work_start", "work_end"] as const;
 
 export const TURN_SCHEMA = {
   type: "object",
@@ -81,7 +81,7 @@ What you can do in this version:
 - Build and update pages with "upsert_artifact": inventories, rate cards, show lists, budgets, policies, plans, reply templates. Each page has a stable lowercase key (like "inventory" or "rates"). Always send the page's full content, since an upsert replaces it. Put a page's link in your reply by writing {{link:KEY}}.
 - Set reminders with "set_reminder" using "when" as local time "YYYY-MM-DDTHH:mm" in the creator's time zone, and "text" as the reminder they'll receive. Cancel with "cancel_reminder" and "reminder_id".
 - Lead setup. The active setup step is what you're working on together. When the creator gives you what a step needs, build its page, "complete_step" it, and ask the next step's question in the same reply. Use "activate_step" to switch to a step that fits better, and "add_step" (key, title, ask) to add one the creator needs.
-- "update_profile" with field and value when they correct their name, time zone (IANA name), working hours (work_start and work_end as HH:MM, 24-hour) or what they make (creator_type must be one of: ${ALL_TYPE_IDS.join(", ")}).
+- "update_profile" with field and value when they correct their name, time zone (IANA name), working hours (work_start and work_end as HH:MM, 24-hour) or their disciplines (creator_types as comma-separated ids, most important first, from: ${ALL_TYPE_IDS.join(", ")}). Many creators do several things; keep every discipline they've named.
 - "send_dashboard_link" when they ask for the website, dashboard or settings.
 
 What you can't do yet: send email, post, log into their accounts, take payments, or contact anyone for them. If they ask, say plainly that it isn't connected yet, then offer what you can do now (a draft they can paste, a page, a reminder). Never claim you did something you didn't.
@@ -91,13 +91,15 @@ How to text:
 - Keep most replies under 320 characters. Longer only for a draft they asked for.
 - One question at a time. Never send a list of questions.
 - Sound like a sharp, warm studio manager. Specific, never gushing. No emoji unless they use them first. Never use em dashes.
-- Use their words for their work. A painter's "pieces", a band's "shows".
+- Use their words for their work. A painter's "pieces", a band's "shows". Never borrow another discipline's terms (no galleries for a musician).
+- Many creators do several things. Keep all of their disciplines in mind, not just the first one.
 - After you handle what they asked, steer back to the active setup step if it's still open, with one short question.
 - If a request is vague, make a sensible assumption and say what you assumed instead of asking.`;
 
 function buildContext(user: User, now: Date): string {
   const tz = user.tz ?? DEFAULT_TZ;
-  const type = getType(user.creator_type);
+  const ids = userTypeIds(user);
+  const type = getType(ids[0]);
   const stepList = steps.list(user.id);
   const pages = artifacts.list(user.id).filter((a) => a.key !== "plan");
   // Pages go in whole, newest first, until the budget runs out. A clipped page would get saved back clipped, so never clip.
@@ -113,15 +115,15 @@ function buildContext(user: User, now: Date): string {
     time_zone: tz,
     creator: {
       name: user.name,
-      creator_type: type.id,
-      type_label: type.label,
+      creator_types: ids,
+      disciplines: describeTypes(ids),
       what_they_make: user.creator_raw,
       how_they_earn: user.earning,
       biggest_headache: user.headache,
       best_working_hours: user.work_start && user.work_end ? `${user.work_start}-${user.work_end}` : "not set",
     },
-    first_agent_to_hire_for_this_type: type.firstHire,
-    idea_menu_for_this_type: type.ideas.map((i) => `${i.title}: ${i.text}`),
+    first_agent_to_hire_for_primary_type: type.firstHire,
+    idea_menu: mergedIdeas(ids).map((i) => `${i.title} (${i.typeLabel}): ${i.text}`),
     setup_steps: stepList.map((s) => ({ key: s.key, title: s.title, status: s.status, ask: s.ask })),
     pages: pageDump,
     plan_page_link_token: "{{link:plan}}",
@@ -134,7 +136,7 @@ function buildContext(user: User, now: Date): string {
 
 function eventPrompt(event: TurnEvent): string {
   if (event.kind === "onboarding_complete") {
-    return `Onboarding just finished. Write the first message after setup. In 2 to 4 short lines: thank them by name, say their studio plan page is ready at {{link:plan}}, connect the first setup step to the headache they named, then ask that step's question. If a different starter step fits their headache better, activate_step it first and ask that one instead.`;
+    return `Onboarding just finished. Write the first message after setup. In 2 to 4 short lines: thank them by first name, say their studio plan page is ready at {{link:plan}}, connect the first setup step to the headache they named, then ask that step's question. If a different starter step fits their headache better, activate_step it first and ask that one instead.`;
   }
   const media = event.media?.length ? `\n(They attached ${event.media.length} photo(s).)` : "";
   return `The creator just texted:\n"""${event.text}"""${media}\n\nRespond with your reply and any actions.`;
@@ -262,7 +264,13 @@ export function applyActions(user: User, actions: Action[], now = new Date()) {
           if (!a.field || !PROFILE_FIELDS.includes(a.field)) break;
           if (a.field === "tz" && !isValidTz(v)) break;
           if ((a.field === "work_start" || a.field === "work_end") && !/^\d{2}:\d{2}$/.test(v)) break;
-          if (a.field === "creator_type" && !ALL_TYPE_IDS.includes(v)) break;
+          if (a.field === "creator_types") {
+            const ids = [...new Set(v.split(/[\s,]+/).filter((id) => ALL_TYPE_IDS.includes(id)))];
+            if (!ids.length) break;
+            users.update(user.id, { creator_types: JSON.stringify(ids), creator_type: ids[0] });
+            touched.profileChanged = true;
+            break;
+          }
           users.update(user.id, { [a.field]: v.slice(0, 300) || null });
           touched.profileChanged = true;
           break;

@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { config } from "./config.ts";
 import { artifacts, memories, messages, reminders, users } from "./db.ts";
-import { ALL_TYPE_IDS } from "./catalog.ts";
+import { ALL_TYPE_IDS, userTypeIds } from "./catalog.ts";
 import { rebuildPlan } from "./artifacts.ts";
 import { handleInbound, startFromWeb } from "./conversation.ts";
 import { normalizePhone, verifyTwilioSignature } from "./sms.ts";
@@ -133,9 +133,13 @@ async function route(req: IncomingMessage, res: ServerResponse) {
       const end = form.work_end ?? "";
       const hhmm = /^\d{2}:\d{2}$/;
       const hours = hhmm.test(start) && hhmm.test(end) && start !== end ? { work_start: start, work_end: end } : { work_start: null, work_end: null };
+      // The main discipline moves to the front; the creator's other disciplines stay.
+      const primary = ALL_TYPE_IDS.includes(form.creator_type ?? "") ? form.creator_type! : user.creator_type;
+      const types = primary ? [primary, ...userTypeIds(user).filter((t) => t !== primary)] : userTypeIds(user);
       users.update(user.id, {
         name: (form.name ?? "").trim().slice(0, 40) || user.name,
-        creator_type: ALL_TYPE_IDS.includes(form.creator_type ?? "") ? form.creator_type : user.creator_type,
+        creator_type: primary,
+        creator_types: JSON.stringify(types),
         tz: isValidTz(form.tz ?? "") ? form.tz : user.tz,
         paused: form.checkins === "on" ? 0 : 1,
         ...hours,

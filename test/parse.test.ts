@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isQuiet, parseHours, parseTz, zonedToUtc, formatLocalIso } from "../src/time.ts";
-import { classifyCreator } from "../src/catalog.ts";
+import { classifyCreator, classifyCreatorAll, describeTypes, earnExamples, mergedStarters } from "../src/catalog.ts";
 import { parseName } from "../src/onboarding.ts";
 import { normalizePhone, splitForSms, twilioSignature, verifyTwilioSignature } from "../src/sms.ts";
 
@@ -36,6 +36,18 @@ test("classifyCreator picks the closest creator type", () => {
   assert.equal(classifyCreator("a YouTube channel about cooking"), "youtubers");
   assert.equal(classifyCreator("handmade silver jewelry on Etsy"), "makers");
   assert.equal(classifyCreator("stuff"), null);
+});
+
+test("multi-discipline creators keep every discipline, in the order they said them", () => {
+  const ids = classifyCreatorAll("I'm a musician and a YouTuber and I have a podcast that I published on YouTube and I run a course Company for guitarist called Sonora");
+  assert.deepEqual(ids, ["musicians", "youtubers", "podcasters", "teachers"]);
+  assert.equal(describeTypes(ids), "musician, YouTuber, podcaster and educator");
+  assert.doesNotMatch(earnExamples(ids), /galler/i);
+  assert.match(earnExamples(["painters"]), /galleries/);
+  const starters = mergedStarters(ids).map((s) => s.key);
+  assert.equal(starters[0], "shows");
+  assert.ok(starters.includes("deals") && starters.includes("show") && starters.includes("students"));
+  assert.ok(starters.length <= 5);
 });
 
 test("parseName strips greetings and lead-ins", () => {

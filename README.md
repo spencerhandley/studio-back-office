@@ -28,6 +28,22 @@ npm run typecheck
 - `src/catalog.ts` and `catalog-data.json` hold the 16 creator types, their 132 ideas, the first agent each type should hire, and three starter setup steps per type.
 - `src/llm.ts` has three providers: `anthropic` for production (the Messages API with a forced tool for structured output), `claude-cli` for local testing on the subscription, and `mock` for tests.
 
+## Improvement loop
+
+Studio gets better from its real conversations. The tools live in `improve/`:
+
+- `export.ts` writes every conversation with new messages since a cursor, with automatic signals: unanswered or slow replies, model failures, fallback replies, the creator repeating themselves or sounding confused, opt-outs, stalled onboarding, and lint on each reply.
+- `lint.ts` checks replies mechanically: more than one question, too long for a text, markdown, em dashes, another discipline's terms (galleries for a musician), and promises Studio can't keep yet.
+- `replay.ts` runs conversations through the current code against a throwaway database and prints every reply. Pass `improve/eval-set.json`, or `--from-db <path> --user <id>` to replay a real creator's texts exactly.
+- `eval-set.json` is the regression set. Every failure that gets fixed adds a conversation here with a one-line `expect`.
+
+A daily run exports what's new, grades each exchange in context, fixes root causes in code or prompts, proves each fix by replaying the failing conversation plus the whole regression set, and ships it.
+
+```sh
+node --experimental-strip-types improve/export.ts --db data/studio.db --since 2026-10-24T00:00:00Z --out new.json
+node --experimental-strip-types improve/replay.ts improve/eval-set.json
+```
+
 ## Going live
 
 1. Get a Twilio number and register it for A2P 10DLC. Carriers require this for business texting in the US. The landing page's consent language and the first text's STOP/HELP lines are written to pass review.

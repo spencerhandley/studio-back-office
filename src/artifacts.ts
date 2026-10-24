@@ -1,6 +1,6 @@
 import { config } from "./config.ts";
 import { artifacts, steps, type Artifact, type User } from "./db.ts";
-import { AREAS, LEVEL_LABEL, getType } from "./catalog.ts";
+import { AREAS, LEVEL_LABEL, describeTypes, getType, mergedIdeas, userTypeIds } from "./catalog.ts";
 import { formatClock } from "./time.ts";
 
 // Artifacts are structured content, never model-written HTML. The server renders and escapes every field.
@@ -82,10 +82,14 @@ export function parseContent(a: Artifact): ArtifactContent {
 
 // The studio plan is the one artifact the server owns. It is rebuilt whenever the profile or setup steps change.
 export function rebuildPlan(user: User): Artifact {
-  const type = getType(user.creator_type);
+  const ids = userTypeIds(user);
+  const type = getType(ids[0]);
+  const ideas = mergedIdeas(ids);
+  const multi = ids.length > 1;
   const stepList = steps.list(user.id);
   const about: string[] = [];
   if (user.creator_raw) about.push(`What you make: ${user.creator_raw}`);
+  if (ids.length) about.push(`How I'll think about your work: ${describeTypes(ids)}`);
   if (user.earning) about.push(`How it earns today: ${user.earning}`);
   if (user.headache) about.push(`What eats your time: ${user.headache}`);
   if (user.work_start && user.work_end) {
@@ -101,13 +105,15 @@ export function rebuildPlan(user: User): Artifact {
       checklist: stepList.map((s) => ({ text: s.status === "active" ? `${s.title} (up now)` : s.title, done: s.status === "done" })),
     },
   ];
-  if (type.ideas.length) {
+  if (ideas.length) {
     sections.push({
-      heading: `Where this can grow for a ${type.label}`,
+      heading: multi ? `Where this can grow across your work` : `Where this can grow for a ${describeTypes(ids)}`,
       paragraphs: ["Ideas for what I can take on as we go. Each shows how much I'd do without asking you first."],
       table: {
-        columns: ["Idea", "Area", "How I'd work", "What it does"],
-        rows: type.ideas.map((i) => [i.title, AREAS[i.area].label, LEVEL_LABEL[i.level], i.text]),
+        columns: multi ? ["Idea", "For your work as", "Area", "How I'd work", "What it does"] : ["Idea", "Area", "How I'd work", "What it does"],
+        rows: ideas.map((i) =>
+          multi ? [i.title, i.typeLabel, AREAS[i.area].label, LEVEL_LABEL[i.level], i.text] : [i.title, AREAS[i.area].label, LEVEL_LABEL[i.level], i.text],
+        ),
       },
     });
   }
@@ -120,5 +126,5 @@ export function rebuildPlan(user: User): Artifact {
       "Text HELP for help, or STOP to stop all texts.",
     ],
   });
-  return artifacts.upsert(user.id, "plan", `${user.name ? `${user.name}'s` : "Your"} studio plan`, "Your profile, setup path and what comes next.", { sections });
+  return artifacts.upsert(user.id, "plan", `${user.name ? `${user.name.split(/\s+/)[0]}'s` : "Your"} studio plan`, "Your profile, setup path and what comes next.", { sections });
 }
