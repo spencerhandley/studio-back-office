@@ -5,6 +5,7 @@ import { handleInbound } from "../src/conversation.ts";
 import { artifacts, memories, messages, reminders, steps, users } from "../src/db.ts";
 import { tick } from "../src/scheduler.ts";
 import { parseContent } from "../src/artifacts.ts";
+import { lintReply } from "../improve/lint.ts";
 
 const PHONE = "+14155550123";
 const lastOut = () => {
@@ -141,6 +142,8 @@ test("the scheduler sends due reminders and respects quiet hours for nudges", as
   // 3pm Eastern: nudge with the active step's question.
   assert.equal((await tick(new Date("2026-10-27T19:00:00Z"))).nudges, 1);
   assert.match(lastOut(), /galleries/i);
+  // The check-in asks only the step's question, so it passes lint like any other reply.
+  assert.deepEqual(lintReply(lastOut()), []);
   // Not again within 48 hours.
   assert.equal((await tick(new Date("2026-10-28T19:00:00Z"))).nudges, 0);
 });

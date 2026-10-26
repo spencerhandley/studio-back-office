@@ -52,7 +52,7 @@ export async function tick(now = new Date()): Promise<{ reminders: number; nudge
     } else {
       const active = steps.active(user.id);
       if (!active) continue;
-      text = `Hi ${user.name ?? "there"}, picking up where we left off. ${active.ask}\n\nBusy stretch? Text PAUSE and I'll hold off on check-ins.`;
+      text = `Hi ${user.name ?? "there"}, picking up where we left off. ${active.ask}\n\nIf this is a busy stretch, text PAUSE and I'll hold off on check-ins.`;
     }
     users.update(user.id, { last_nudge_at: now.toISOString(), nudges_since_reply: user.nudges_since_reply + 1 });
     await sendSms(user, text);

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isQuiet, parseHours, parseTz, zonedToUtc, formatLocalIso } from "../src/time.ts";
-import { classifyCreator, classifyCreatorAll, describeTypes, earnExamples, mergedStarters } from "../src/catalog.ts";
+import { classifyCreator, classifyCreatorAll, describeTypes, earnExamples, getType, mergedStarters, TYPES } from "../src/catalog.ts";
 import { parseName } from "../src/onboarding.ts";
 import { normalizePhone, splitForSms, twilioSignature, verifyTwilioSignature } from "../src/sms.ts";
 
@@ -97,4 +97,10 @@ test("Twilio signatures verify and reject tampering", () => {
   assert.equal(verifyTwilioSignature("secret", url, { ...params, Body: "bye" }, sig), false);
   assert.equal(verifyTwilioSignature("other", url, params, sig), false);
   assert.equal(verifyTwilioSignature("secret", url, params, undefined), false);
+});
+
+test("every starter step asks one question, since its ask is texted as is in replies and check-ins", () => {
+  const starters = [...TYPES, getType("other")].flatMap((t) => t.starters);
+  assert.ok(starters.length > 30);
+  for (const s of starters) assert.ok((s.ask.match(/\?/g) ?? []).length <= 1, `${s.key}: ${s.ask}`);
 });

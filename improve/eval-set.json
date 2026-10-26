@@ -43,5 +43,10 @@
       "Nov 7 Basement East Nashville $800 guarantee, Nov 9 Grey Eagle Asheville $500 vs 80% of door. drummer $150/show, gas $120/day"
     ],
     "expect": "Builds a shows page with correct math (drummer $300 for two shows, gas at $120 per day with the number of days stated as an assumption, $1,300 guaranteed) and links it, then moves to the next setup step with one question."
+  },
+  {
+    "name": "maker-unsure-which-channel-pays",
+    "texts": ["hi", "Priya", "I make candles and soap", "Etsy, a couple of weekend markets, and some wholesale to gift shops", "no idea which of those is actually worth my time", "evenings, mountain time"],
+    "expect": "Filed as a maker on Denver time. The first setup step ties back to which channel is worth the time (margins or where they sell), and that step is asked as one question."
   }
 ]
