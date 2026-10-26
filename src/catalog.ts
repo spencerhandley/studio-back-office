@@ -145,7 +145,7 @@ const extras: Record<string, { label: string; keywords: string[]; starters: Star
     keywords: ["jewelry", "jeweler", "woodwork", "furniture", "candle", "soap", "knit", "crochet", "textile", "quilt", "leather", "etsy", "handmade", "craft", "maker", "sewing", "embroider"],
     starters: [
       { key: "products", title: "List your products", ask: "Let's work out your real margins. Text me your main products with price, material cost, and how long each one takes to make." },
-      { key: "channels", title: "Map where you sell", ask: "Where do you sell: Etsy, your own site, markets, wholesale? Roughly what share of sales comes from each?" },
+      { key: "channels", title: "Map where you sell", ask: "Where do you sell (Etsy, your own site, markets, wholesale), and roughly what share of sales comes from each?" },
       { key: "events", title: "Collect upcoming markets", ask: "Any craft fairs, markets or wholesale orders coming up? Tell me the dates." },
     ],
   },
