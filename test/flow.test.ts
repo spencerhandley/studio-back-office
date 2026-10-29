@@ -39,7 +39,8 @@ setMockResponder((req) => {
         },
         { type: "remember", note: "Hall Gallery holds Blue Hour on consignment." },
         { type: "complete_step", step_key: "inventory" },
-        { type: "set_reminder", when: "2026-10-26T15:00", text: "Email Hall Gallery about Blue Hour." },
+        // Far-future dates, so the agent never drops this reminder as already past.
+        { type: "set_reminder", when: "2036-10-26T15:00", text: "Email Hall Gallery about Blue Hour." },
         { type: "upsert_artifact", key: "plan", title: "Hijack", sections: [{ heading: "x" }] },
       ],
     };
@@ -99,7 +100,7 @@ test("agent actions build pages, remember facts, advance setup and set reminders
   assert.notEqual(artifacts.byKey(user.id, "plan")?.title, "Hijack");
   const r = reminders.pending(user.id);
   assert.equal(r.length, 1);
-  assert.equal(r[0].due_at, "2026-10-26T19:00:00.000Z");
+  assert.equal(r[0].due_at, "2036-10-26T19:00:00.000Z");
 });
 
 test("replies are cleaned of markdown and em dashes", async () => {
@@ -127,25 +128,41 @@ test("keywords: HELP, LINK, PAUSE, STOP and START", async () => {
 
 test("the scheduler sends due reminders and respects quiet hours for nudges", async () => {
   const user = users.byPhone(PHONE)!;
-  const sent = await tick(new Date("2026-10-26T19:01:00Z"));
+  const sent = await tick(new Date("2036-10-26T19:01:00Z"));
   assert.equal(sent.reminders, 1);
   assert.match(lastOut(), /^Reminder: Email Hall Gallery/);
 
   // Make the creator look idle for two days.
-  const old = "2026-10-20T12:00:00.000Z";
+  const old = "2036-10-20T12:00:00.000Z";
   users.update(user.id, { last_inbound_at: old, last_nudge_at: null, nudges_since_reply: 0 });
   const { db } = await import("../src/db.ts");
   db.prepare("UPDATE messages SET created_at = ? WHERE user_id = ?").run(old, user.id);
 
   // 10:30am Eastern is inside Maya's 9 to 1 making time: no nudge.
-  assert.equal((await tick(new Date("2026-10-27T14:30:00Z"))).nudges, 0);
+  assert.equal((await tick(new Date("2036-10-27T14:30:00Z"))).nudges, 0);
   // 3pm Eastern: nudge with the active step's question.
-  assert.equal((await tick(new Date("2026-10-27T19:00:00Z"))).nudges, 1);
+  assert.equal((await tick(new Date("2036-10-27T19:00:00Z"))).nudges, 1);
   assert.match(lastOut(), /galleries/i);
   // The check-in asks only the step's question, so it passes lint like any other reply.
   assert.deepEqual(lintReply(lastOut()), []);
   // Not again within 48 hours.
-  assert.equal((await tick(new Date("2026-10-28T19:00:00Z"))).nudges, 0);
+  assert.equal((await tick(new Date("2036-10-28T19:00:00Z"))).nudges, 0);
+
+  // No reply to that check-in: the next one offers a different setup step instead of repeating itself,
+  // preferring one that touches the headache they named over the next one in line.
+  steps.add(user.id, "pricing", "Set your prices", "What do your paintings sell for now, small to large?");
+  users.update(user.id, { headache: "Pricing my work" });
+  const asked = steps.active(user.id)!;
+  const firstCheckIn = lastOut();
+  assert.equal((await tick(new Date("2036-10-29T19:30:00Z"))).nudges, 1);
+  const second = lastOut();
+  assert.notEqual(second, firstCheckIn);
+  assert.ok(!second.includes(asked.ask), "does not repeat the unanswered step's question");
+  const now = steps.active(user.id)!;
+  assert.equal(now.key, "pricing");
+  assert.ok(second.includes(now.ask));
+  assert.equal(steps.byKey(user.id, asked.key)!.status, "pending", "the skipped step stays on the list");
+  assert.deepEqual(lintReply(second), []);
 });
 
 test("model-led onboarding keeps every discipline and skips what was already answered", async () => {
