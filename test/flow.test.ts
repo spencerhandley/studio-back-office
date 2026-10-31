@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { setMockResponder, type LlmRequest } from "../src/llm.ts";
 import { handleInbound } from "../src/conversation.ts";
 import { artifacts, memories, messages, reminders, steps, users } from "../src/db.ts";
-import { tick } from "../src/scheduler.ts";
+import { stepTopic, tick } from "../src/scheduler.ts";
 import { parseContent } from "../src/artifacts.ts";
 import { lintReply } from "../improve/lint.ts";
 
@@ -160,9 +160,20 @@ test("the scheduler sends due reminders and respects quiet hours for nudges", as
   assert.ok(!second.includes(asked.ask), "does not repeat the unanswered step's question");
   const now = steps.active(user.id)!;
   assert.equal(now.key, "pricing");
-  assert.ok(second.includes(now.ask));
+  assert.ok(second.toLowerCase().includes(now.ask.toLowerCase()));
   assert.equal(steps.byKey(user.id, asked.key)!.status, "pending", "the skipped step stays on the list");
   assert.deepEqual(lintReply(second), []);
+  // It reads like a person: no quoted step title, and the new ask flows on instead of being spliced after a colon.
+  assert.ok(!second.includes(`"${asked.title}"`), "does not quote the step title");
+  assert.doesNotMatch(second, /: [A-Z]/);
+});
+
+test("check-ins name a step by what it is about", () => {
+  assert.equal(stepTopic("List upcoming shows"), "your upcoming shows");
+  assert.equal(stepTopic("Set up your deal desk"), "your deal desk");
+  assert.equal(stepTopic("Write down your packages"), "your packages");
+  assert.equal(stepTopic("Map where you sell"), "where you sell");
+  assert.equal(stepTopic("Sonora sales team"), "that one");
 });
 
 test("model-led onboarding keeps every discipline and skips what was already answered", async () => {

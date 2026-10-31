@@ -23,6 +23,20 @@ function nextPendingStep(user: User, active: Step): Step | undefined {
   return pending.find((s) => [...words(`${s.key} ${s.title}`)].some((w) => headache.has(w))) ?? pending[0];
 }
 
+// A step title is an imperative ("Set up your deal desk"); a check-in needs the thing it is about
+// ("your deal desk"), so drop the leading verb and any particle after it.
+const TITLE_VERB = /^(list|set|check|describe|build|write|map|start|track|draft|plan|inventory|collect|add|make|create|find|update|review|organize)\s+((up|down|out)\s+)?/i;
+export function stepTopic(title: string): string {
+  const m = title.match(TITLE_VERB);
+  if (!m) return "that one";
+  const rest = title.slice(m[0].length);
+  return /^(your|my|a|an|the|where|what|how|who|which|when)\b/i.test(rest) ? rest : `your ${rest}`;
+}
+
+// Joins a step's ask onto "In the meantime," only when its first word reads right lowercased.
+const LEADS = /^(let's|what|which|who|how|when|where|is|are|do|does|did|any|tell|text|list|paste|send)\b/i;
+const meantime = (ask: string) => (LEADS.test(ask) ? `In the meantime, ${ask[0].toLowerCase()}${ask.slice(1)}` : ask);
+
 // Nudges go out only in daytime hours outside the creator's making time.
 function goodTimeToNudge(user: User, now: Date) {
   const hour = localParts(now, user.tz ?? DEFAULT_TZ).hour;
@@ -71,7 +85,7 @@ export async function tick(now = new Date()): Promise<{ reminders: number; nudge
       const next = user.nudges_since_reply >= 1 ? nextPendingStep(user, active) : undefined;
       if (next && steps.activate(user.id, next.key)) {
         rebuildPlan(users.byId(user.id)!);
-        text = `Hi ${name}, no rush on "${active.title}", we can come back to it. Something else we can knock out in the meantime: ${next.ask}${footer}`;
+        text = `Hi ${name}, no rush on ${stepTopic(active.title)}, we can come back to that later. ${meantime(next.ask)}${footer}`;
       } else {
         text = `Hi ${name}, picking up where we left off. ${active.ask}${footer}`;
       }
